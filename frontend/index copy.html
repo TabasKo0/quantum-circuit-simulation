@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Simulator Suite</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <h1>Quantum Computing Simulator Suite</h1>
+    
+    <div class="tabs">
+        <button class="tab-link active" onclick="openTab(event, 'Circuit')">Circuit Simulator</button>
+        <button class="tab-link" onclick="openTab(event, 'Bloch')">Bloch Sphere</button>
+    </div>
+
+    <div id="Circuit" class="tab-content" style="display: block;">
+        <div class="main-container">
+            <div id="gate-palette">
+                <h3>Gate Palette</h3>
+                <div class="gate" draggable="true" data-gate="H">H</div>
+                <div class="gate" draggable="true" data-gate="X">X</div>
+                <div class="gate" draggable="true" data-gate="S">S</div>
+                <div class="gate" draggable="true" data-gate="T">T</div>
+                <div class="gate two-qubit" draggable="true" data-gate="CNOT">CNOT</div>
+                <div class="gate two-qubit" draggable="true" data-gate="CZ">CZ</div>
+            </div>
+            
+            <div id="circuit-container">
+                <h3>Quantum Circuit</h3>
+                <div id="circuit-board"></div>
+                <div class="controls">
+                    <button id="simulate-btn">Simulate</button>
+                    <button id="clear-btn">Clear Circuit</button>
+                </div>
+            </div>
+        </div>
+        <div id="results-container">
+            <h3>Simulation Output</h3>
+            <div id="statevector-output">
+                <p>Final State Vector: <span>(1.000)|00⟩</span></p>
+            </div>
+            <div id="probability-chart"></div>
+        </div>
+    </div>
+
+    <!-- Only the Bloch Sphere section is changed -->
+    <div id="Bloch" class="tab-content" style="display: none;">
+        <div id="loader-container" class="absolute inset-0 bg-gray-900 bg-opacity-80 flex justify-center items-center z-50">
+            <div class="text-center">
+                <div class="loader mx-auto"></div>
+                <p class="mt-4 text-lg">Initializing Sphere...</p>
+            </div>
+        </div>
+
+        <div id="app" class="flex flex-col md:flex-row h-screen w-screen opacity-0 transition-opacity duration-500" style="height: 80vh;">
+            <div id="canvas-container" class="flex-grow w-full md:w-2/3 h-1/2 md:h-full bg-gray-900"></div>
+
+            <div class="w-full md:w-1/3 h-1/2 md:h-full bg-gray-800 p-6 overflow-y-auto control-panel border-l-2 border-gray-700">
+                <h1 class="text-3xl font-bold mb-1 text-cyan-400">Quantum State Sphere Simulator</h1>
+                <p class="text-gray-400 mb-6">Visualize single and dual qubit states and gate operations.</p>
+
+                <!-- MODE SELECTOR -->
+                <div class="mb-4">
+                    <label for="mode-selector" class="font-semibold text-gray-200">Visualization Mode:</label>
+                    <select id="mode-selector" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white ml-2">
+                        <option value="single">Bloch Sphere (Single Qubit)</option>
+                        <option value="dual">Q Sphere (Dual Qubit)</option>
+                    </select>
+                </div>
+
+                <div class="bg-gray-900 rounded-lg p-4 mb-6">
+                    <h2 class="text-xl font-semibold mb-3 text-gray-200">Current State Vector</h2>
+                    <div class="text-lg font-mono tracking-wider" id="statevector-text">
+                        <!-- Populated by sphere.js -->
+                    </div>
+                    <h2 class="text-xl font-semibold mt-4 mb-3 text-gray-200">Spherical Coordinates</h2>
+                    <div class="text-lg font-mono">
+                        <p id="theta-label">θ: <span id="theta-val" class="text-purple-400">0.00</span>°</p>
+                        <p id="phi-label">φ: <span id="phi-val" class="text-pink-400">0.00</span>°</p>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-200">Apply Quantum Gates</h2>
+                    <div id="gate-buttons" class="grid grid-cols-3 gap-4">
+                        <button id="x-gate" class="gate-btn bg-red-500 hover:bg-red-600 rounded-lg p-4 text-2xl font-bold">X</button>
+                        <button id="y-gate" class="gate-btn bg-green-500 hover:bg-green-600 rounded-lg p-4 text-2xl font-bold">Y</button>
+                        <button id="z-gate" class="gate-btn bg-blue-500 hover:bg-blue-600 rounded-lg p-4 text-2xl font-bold">Z</button>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-xl font-semibold mb-4 text-gray-200">Set Custom State</h2>
+                    <div id="state-inputs" class="space-y-4">
+                        <!-- Populated by sphere.js -->
+                    </div>
+                    <div class="mt-4 flex space-x-4">
+                        <button id="set-state" class="w-full bg-cyan-600 hover:bg-cyan-700 rounded-lg py-2 font-bold transition-colors">Set State</button>
+                        <button id="reset-state" class="w-full bg-gray-600 hover:bg-gray-500 rounded-lg py-2 font-bold transition-colors">Reset</button>
+                    </div>
+                    <p id="error-msg" class="text-red-400 mt-2 h-4"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Bloch Sphere section -->
+
+    <script type="module" src="circuit.js"></script>
+    <!-- sphere.js will contain all logic for both Bloch and Q Sphere visualizations -->
+    <script type="module" src="sphere.js"></script>
+    <script>
+        // Tab switching logic
+        function openTab(evt, tabName) {
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    </script>
+</body>
+</html>

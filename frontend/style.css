@@ -1,0 +1,101 @@
+body { font-family: Arial, sans-serif; margin: 2em; background-color: #f4f4f9; color: #333; }
+h1, h3 { text-align: center; color: #4a4a8a; }
+
+/* Tabs */
+.tabs { overflow: hidden; border-bottom: 1px solid #ccc; margin-bottom: 20px; }
+.tab-link { background-color: #f1f1f1; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; }
+.tab-link:hover { background-color: #ddd; }
+.tab-link.active { background-color: #ccc; }
+.tab-content { display: none; padding: 6px 12px; border-top: none; }
+
+.main-container { display: flex; justify-content: space-evenly; gap: 30px; }
+#gate-palette, #circuit-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+#gate-palette { text-align: center; }
+
+.gate {
+    display: inline-flex; justify-content: center; align-items: center;
+    width: 75px; height: 40px; margin: 5px;
+    border: 1px solid #4a4a8a; background-color: #e8e8ff;
+    font-weight: bold; cursor: grab; user-select: none;
+}
+.gate.two-qubit { background-color: #ffdde8; border-color: #c76f8e; }
+.gate:active { cursor: grabbing; }
+
+#circuit-board {
+    display: grid;
+    grid-template-columns: repeat(8, 50px);
+    grid-template-rows: repeat(2, 50px);
+    gap: 10px; padding: 20px;
+    border: 2px dashed #ccc; background-color: #fafafa;
+}
+.circuit-slot {
+    width: 50px; height: 50px;
+    border: 1px solid #ddd;
+    display: flex; justify-content: center; align-items: center;
+    position: relative;
+}
+.circuit-slot .gate { cursor: pointer; }
+
+/* Styling for CNOT/CZ lines */
+.control-line {
+    position: absolute;
+    left: 50%;
+    width: 2px;
+    background-color: #c76f8e;
+    transform: translateX(-50%);
+}
+
+.controls { margin-top: 20px; text-align: center; }
+button {
+    padding: 10px 20px; font-size: 16px; cursor: pointer;
+    border: none; border-radius: 5px; background-color: #4a4a8a;
+    color: white; margin: 0 10px;
+}
+button:hover { background-color: #35356b; }
+#clear-btn { background-color: #c76f8e; }
+#clear-btn:hover { background-color: #a35671; }
+
+#results-container { margin-top: 30px; background: white; padding: 20px; border-radius: 8px; }
+#statevector-output { font-family: 'Courier New', Courier, monospace; font-size: 1.1em; background: #eee; padding: 15px; border-radius: 5px; }
+
+/* Bloch Sphere Styles */
+.bloch-container { display: flex; gap: 30px; align-items: flex-start; }
+#bloch-sphere-canvas { width: 500px; height: 500px; border: 1px solid #ccc; }
+.bloch-controls { display: flex; flex-direction: column; gap: 10px; }
+.custom-state-inputs input { width: 60px; }
+
+/* New styles for the Bloch Sphere panel */
+.control-panel {
+    scrollbar-width: thin;
+    scrollbar-color: #4a5568 #2d3748;
+}
+.control-panel::-webkit-scrollbar {
+    width: 8px;
+}
+.control-panel::-webkit-scrollbar-track {
+    background: #2d3748;
+}
+.control-panel::-webkit-scrollbar-thumb {
+    background-color: #4a5568;
+    border-radius: 10px;
+    border: 2px solid #2d3748;
+}
+.gate-btn {
+    transition: all 0.2s ease-in-out;
+}
+.gate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
