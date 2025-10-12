@@ -23,7 +23,7 @@ h1, h3 { text-align: center; color: #4a4a8a; }
 
 #circuit-board {
     display: grid;
-    grid-template-columns: repeat(8, 50px);
+    grid-template-columns: repeat(12, 50px);
     grid-template-rows: repeat(2, 50px);
     gap: 10px; padding: 20px;
     border: 2px dashed #ccc; background-color: #fafafa;

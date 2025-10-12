@@ -112,6 +112,7 @@ function drawBlochSphere() {
 }
 
 function drawQSphere() {
+    // Add lighting if not already present
     if (!scene.getObjectByName('qSphereLight')) {
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         ambientLight.name = 'qSphereLight';
@@ -122,17 +123,20 @@ function drawQSphere() {
         scene.add(dirLight);
     }
 
+    // Draw transparent sphere for Q Sphere visualization
     const geometry = new THREE.SphereGeometry(1, 32, 32);
     const material = new THREE.MeshPhongMaterial({ color: 0x44aaff, transparent: true, opacity: 0.2, shininess: 50 });
     const sphere = new THREE.Mesh(geometry, material);
     scene.add(sphere); qSphereObjects.push(sphere);
 
+    // Define basis states and their positions on the sphere
     const basisStates = [
         { label: '|00⟩', amp: state.alpha, pos: [0, 1, 0] },
         { label: '|01⟩', amp: state.beta, pos: [0, 0, 1] },
         { label: '|10⟩', amp: state.gamma, pos: [1, 0, 0] },
         { label: '|11⟩', amp: state.delta, pos: [0, -1, 0] }
     ];
+    // Calculate normalization factor for amplitudes
     const norm = Math.sqrt(
         complex.abs(state.alpha) ** 2 +
         complex.abs(state.beta) ** 2 +
@@ -140,22 +144,27 @@ function drawQSphere() {
         complex.abs(state.delta) ** 2
     ) || 1;
 
+    // Normalize amplitudes and compute magnitude/phase for each basis state
     basisStates.forEach(bs => {
         bs.ampNorm = { real: bs.amp.real / norm, imag: bs.amp.imag / norm };
         bs.abs = complex.abs(bs.ampNorm);
         bs.phase = complex.arg(bs.ampNorm);
     });
 
+    // For each basis state, draw a colored sphere and an arrow if amplitude is significant
     basisStates.forEach((bs, i) => {
         if (bs.abs > 1e-3) {
+            // Sphere radius encodes amplitude magnitude
             const r = 0.08 + 0.22 * bs.abs;
+            // Color encodes amplitude phase (using HSL)
             const color = new THREE.Color().setHSL((bs.phase/(2*Math.PI)+1)%1, 1, 0.5);
             const sphereGeom = new THREE.SphereGeometry(r, 24, 16);
             const sphereMat = new THREE.MeshPhongMaterial({ color: color, shininess: 70 });
             const sphereMesh = new THREE.Mesh(sphereGeom, sphereMat);
             sphereMesh.position.set(...bs.pos);
-            scene.add(sphereMesh); qSphereObjects.push(sphereMesh);
+            //scene.add(sphereMesh); qSphereObjects.push(sphereMesh);
 
+            // Arrow points from origin to basis state position, colored by phase
             const arrowColor = color.getHex();
             const direction = new THREE.Vector3(...bs.pos).normalize();
             const arrow = new THREE.ArrowHelper(
@@ -170,6 +179,7 @@ function drawQSphere() {
         }
     });
 
+    // Draw equator ring for reference
     const ringGeometry = new THREE.RingGeometry(1, 1, 64);
     const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
     const equator = new THREE.Mesh(ringGeometry, ringMaterial);
@@ -269,6 +279,7 @@ function resetState() {
 function handleSetState() {
     const errorMsg = document.getElementById('error-msg');
     errorMsg.textContent = '';
+    console.log('mode:', mode, typeof mode);
     if (mode === 'single') {
         const alphaReal = parseFloat(document.getElementById('alpha-real').value) || 0;
         const alphaImag = parseFloat(document.getElementById('alpha-imag').value) || 0;
@@ -284,6 +295,7 @@ function handleSetState() {
         state.alpha = { real: rawAlpha.real / norm, imag: rawAlpha.imag / norm };
         state.beta = { real: rawBeta.real / norm, imag: rawBeta.imag / norm };
     } else {
+        console.log("gey");
         const alphaReal = parseFloat(document.getElementById('alpha-real').value) || 0;
         const alphaImag = parseFloat(document.getElementById('alpha-imag').value) || 0;
         const betaReal = parseFloat(document.getElementById('beta-real').value) || 0;
@@ -351,6 +363,7 @@ export default function drawSphere(newState) {
         state = newState;
         mode = (typeof state.gamma !== 'undefined' && typeof state.delta !== 'undefined') ? 'dual' : 'single';
     }
+    console.log(state);
     if (!initialized) return; // Only draw after init
     resetScene();
     drawAxes();

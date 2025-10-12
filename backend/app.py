@@ -51,6 +51,8 @@ def simulate():
         if gate_q0:
             if gate_q0.lower() == 'h': qc.h(0)
             elif gate_q0.lower() == 'x': qc.x(0)
+            elif gate_q0.lower() == 'y': qc.y(0)
+            elif gate_q0.lower() == 'z': qc.z(0)
             elif gate_q0.lower() == 's': qc.s(0)
             elif gate_q0.lower() == 't': qc.t(0)
             elif gate_q0.lower() == 'cnot_control': qc.cx(0, 1)
@@ -59,6 +61,8 @@ def simulate():
         if gate_q1:
             if gate_q1.lower() == 'h': qc.h(1)
             elif gate_q1.lower() == 'x': qc.x(1)
+            elif gate_q1.lower() == 'y': qc.y(1)
+            elif gate_q1.lower() == 'z': qc.z(1)
             elif gate_q1.lower() == 's': qc.s(1)
             elif gate_q1.lower() == 't': qc.t(1)
             elif gate_q1.lower() == 'cnot_control': qc.cx(1, 0)

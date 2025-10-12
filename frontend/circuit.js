@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearBtn = document.getElementById('clear-btn');
 
     const NUM_QUBITS = 2;
-    const NUM_COLS = 8;
+    const NUM_COLS = 12;
 
     // Initialize Circuit Board
     function initializeBoard() {
