@@ -71,18 +71,24 @@ function drawAxes(length = 1.5) {
         fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/helvetiker_regular.typeface.json', function (font) {
             const textMaterial = (color) => new THREE.MeshBasicMaterial({ color: color });
             const textParams = { font: font, size: 0.1, height: 0.01 };
-            const label0 = new THREE.Mesh(new THREE.TextGeometry('|0⟩', textParams), textMaterial(0xaaaaff));
+            const label0 = new THREE.Mesh(new THREE.TextGeometry('|0 >', textParams), textMaterial(0xaaaaff));
             label0.position.set(0.05, 1.1, 0);
             scene.add(label0);
-            const label1 = new THREE.Mesh(new THREE.TextGeometry('|1⟩', textParams), textMaterial(0xaaaaff));
+            const label1 = new THREE.Mesh(new THREE.TextGeometry('|1 >', textParams), textMaterial(0xaaaaff));
             label1.position.set(0.05, -1.25, 0);
             scene.add(label1);
             const labelX = new THREE.Mesh(new THREE.TextGeometry('X', textParams), textMaterial(0xffaaaa));
             labelX.position.set(1.1, 0.05, 0);
             scene.add(labelX);
+            const labelX_ = new THREE.Mesh(new THREE.TextGeometry('X\'', textParams), textMaterial(0xffaaaa));
+            labelX_.position.set(-1.25, 0.05, 0);
+            scene.add(labelX_);
             const labelY = new THREE.Mesh(new THREE.TextGeometry('Y', textParams), textMaterial(0xaaffaa));
             labelY.position.set(0.05, 0.05, 1.1);
             scene.add(labelY);
+            const labelY_ = new THREE.Mesh(new THREE.TextGeometry('Y\'', textParams), textMaterial(0xffaaaa));
+            labelY_.position.set(0, 0.05,-1.25 );
+            scene.add(labelY_);
         });
 }
 
@@ -107,162 +113,46 @@ function drawBlochSphere() {
     const z = Math.sin(theta) * Math.sin(phi);
     const y = Math.cos(theta);
     const dir = new THREE.Vector3(x, y, z).normalize();
-    stateVectorArrow = new THREE.ArrowHelper(dir, new THREE.Vector3(0, 0, 0), 1, 0xffff00, 0.15, 0.12);
+    stateVectorArrow = new THREE.ArrowHelper(dir, new THREE.Vector3(0, 0, 0), 1, 0xffff0f, 0.15, 0.12);
     scene.add(stateVectorArrow); blochSphereObjects.push(stateVectorArrow);
 }
 
-function drawQSphere() {
-    // Add lighting if not already present
-    if (!scene.getObjectByName('qSphereLight')) {
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        ambientLight.name = 'qSphereLight';
-        scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
-        dirLight.position.set(2, 2, 2);
-        dirLight.name = 'qSphereLight';
-        scene.add(dirLight);
-    }
-
-    // Draw transparent sphere for Q Sphere visualization
-    const geometry = new THREE.SphereGeometry(1, 32, 32);
-    const material = new THREE.MeshPhongMaterial({ color: 0x44aaff, transparent: true, opacity: 0.2, shininess: 50 });
-    const sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere); qSphereObjects.push(sphere);
-
-    // Define basis states and their positions on the sphere
-    const basisStates = [
-        { label: '|00⟩', amp: state.alpha, pos: [0, 1, 0] },
-        { label: '|01⟩', amp: state.beta, pos: [0, 0, 1] },
-        { label: '|10⟩', amp: state.gamma, pos: [1, 0, 0] },
-        { label: '|11⟩', amp: state.delta, pos: [0, -1, 0] }
-    ];
-    // Calculate normalization factor for amplitudes
-    const norm = Math.sqrt(
-        complex.abs(state.alpha) ** 2 +
-        complex.abs(state.beta) ** 2 +
-        complex.abs(state.gamma) ** 2 +
-        complex.abs(state.delta) ** 2
-    ) || 1;
-
-    // Normalize amplitudes and compute magnitude/phase for each basis state
-    basisStates.forEach(bs => {
-        bs.ampNorm = { real: bs.amp.real / norm, imag: bs.amp.imag / norm };
-        bs.abs = complex.abs(bs.ampNorm);
-        bs.phase = complex.arg(bs.ampNorm);
-    });
-
-    // For each basis state, draw a colored sphere and an arrow if amplitude is significant
-    basisStates.forEach((bs, i) => {
-        if (bs.abs > 1e-3) {
-            // Sphere radius encodes amplitude magnitude
-            const r = 0.08 + 0.22 * bs.abs;
-            // Color encodes amplitude phase (using HSL)
-            const color = new THREE.Color().setHSL((bs.phase/(2*Math.PI)+1)%1, 1, 0.5);
-            const sphereGeom = new THREE.SphereGeometry(r, 24, 16);
-            const sphereMat = new THREE.MeshPhongMaterial({ color: color, shininess: 70 });
-            const sphereMesh = new THREE.Mesh(sphereGeom, sphereMat);
-            sphereMesh.position.set(...bs.pos);
-            //scene.add(sphereMesh); qSphereObjects.push(sphereMesh);
-
-            // Arrow points from origin to basis state position, colored by phase
-            const arrowColor = color.getHex();
-            const direction = new THREE.Vector3(...bs.pos).normalize();
-            const arrow = new THREE.ArrowHelper(
-                direction,
-                new THREE.Vector3(0, 0, 0),
-                1.05 - r,
-                arrowColor,
-                0.16,
-                0.12
-            );
-            scene.add(arrow); qSphereObjects.push(arrow);
-        }
-    });
-
-    // Draw equator ring for reference
-    const ringGeometry = new THREE.RingGeometry(1, 1, 64);
-    const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
-    const equator = new THREE.Mesh(ringGeometry, ringMaterial);
-    equator.rotation.x = Math.PI / 2;
-    scene.add(equator); qSphereObjects.push(equator);
-}
 
 // UI update functions
 function updateUI() {
     const statevectorText = document.getElementById('statevector-text');
     const thetaVal = document.getElementById('theta-val');
     const phiVal = document.getElementById('phi-val');
-    if (mode === 'single') {
         statevectorText.innerHTML = `|Ψ⟩ = (<span class="text-green-400">${complex.format(state.alpha)}</span>)|0⟩ + (<span class="text-yellow-400">${complex.format(state.beta)}</span>)|1⟩`;
         const theta = 2 * Math.acos(complex.abs(state.alpha));
         let phi = complex.arg(state.beta) - complex.arg(state.alpha);
         if (Math.abs(complex.abs(state.beta)) < 1e-9) phi = 0;
         thetaVal.textContent = (theta * 180 / Math.PI).toFixed(2);
         phiVal.textContent = (phi * 180 / Math.PI).toFixed(2);
-    } else {
-        statevectorText.innerHTML = `
-            |Ψ⟩ = (<span class="text-green-400">${complex.format(state.alpha)}</span>)|00⟩
-            + (<span class="text-yellow-400">${complex.format(state.beta)}</span>)|01⟩
-            + (<span class="text-blue-400">${complex.format(state.gamma)}</span>)|10⟩
-            + (<span class="text-purple-400">${complex.format(state.delta)}</span>)|11⟩
-        `;
-        thetaVal.textContent = '';
-        phiVal.textContent = '';
-    }
+    
 }
 
 function renderStateInputs() {
     const stateInputs = document.getElementById('state-inputs');
     if (!stateInputs) return;
-    if (mode === 'single') {
+   
         stateInputs.innerHTML = `
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <label class="font-mono text-lg sm:col-span-1 text-gray-100 font-semibold">α (|0⟩):</label>
-                <div class="sm:col-span-2 grid grid-cols-2 gap-2">
-                    <input type="number" id="alpha-real" value="${state.alpha.real}" placeholder="Real" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white">
-                    <input type="number" id="alpha-imag" value="${state.alpha.imag}" placeholder="Imaginary" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                <label class="font-mono text-lg sm:col-span-1 text-white font-semibold">α (|0⟩):</label>
+                <div class="sm:col-span-2 grid grid-cols-2 gap-2 text-white">
+                    <input type="number" id="alpha-real" value="${state.alpha.real}" placeholder="Real" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white ">
+                    <input type="number" id="alpha-imag" value="${state.alpha.imag}" placeholder="Imaginary" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white">
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <label class="font-mono text-lg sm:col-span-1 text-gray-100 font-semibold">β (|1⟩):</label>
-                <div class="sm:col-span-2 grid grid-cols-2 gap-2">
-                    <input type="number" id="beta-real" value="${state.beta.real}" placeholder="Real" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                    <input type="number" id="beta-imag" value="${state.beta.imag}" placeholder="Imaginary" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                <label class="font-mono text-lg sm:col-span-1 text-white font-semibold">β (|1⟩):</label>
+                <div class="sm:col-span-2 grid grid-cols-2 gap-2 text-white">
+                    <input type="number" id="beta-real" value="${state.beta.real}" placeholder="Real" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white">
+                    <input type="number" id="beta-imag" value="${state.beta.imag}" placeholder="Imaginary" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white">
                 </div>
             </div>
         `;
-    } else {
-        stateInputs.innerHTML = `
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <label class="font-mono text-lg sm:col-span-1 text-gray-100 font-semibold">α (|00⟩):</label>
-                <div class="sm:col-span-2 grid grid-cols-2 gap-2">
-                    <input type="number" id="alpha-real" value="${state.alpha.real}" placeholder="Real" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white">
-                    <input type="number" id="alpha-imag" value="${state.alpha.imag}" placeholder="Imaginary" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <label class="font-mono text-lg sm:col-span-1 text-gray-100 font-semibold">β (|01⟩):</label>
-                <div class="sm:col-span-2 grid grid-cols-2 gap-2">
-                    <input type="number" id="beta-real" value="${state.beta.real}" placeholder="Real" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                    <input type="number" id="beta-imag" value="${state.beta.imag}" placeholder="Imaginary" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <label class="font-mono text-lg sm:col-span-1 text-gray-100 font-semibold">γ (|10⟩):</label>
-                <div class="sm:col-span-2 grid grid-cols-2 gap-2">
-                    <input type="number" id="gamma-real" value="${state.gamma.real}" placeholder="Real" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                    <input type="number" id="gamma-imag" value="${state.gamma.imag}" placeholder="Imaginary" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                </div>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-center">
-                <label class="font-mono text-lg sm:col-span-1 text-gray-100 font-semibold">δ (|11⟩):</label>
-                <div class="sm:col-span-2 grid grid-cols-2 gap-2">
-                    <input type="number" id="delta-real" value="${state.delta.real}" placeholder="Real" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                    <input type="number" id="delta-imag" value="${state.delta.imag}" placeholder="Imaginary" class="bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                </div>
-            </div>
-        `;
-    }
+    
 }
 
 function resetState() {
@@ -280,7 +170,6 @@ function handleSetState() {
     const errorMsg = document.getElementById('error-msg');
     errorMsg.textContent = '';
     console.log('mode:', mode, typeof mode);
-    if (mode === 'single') {
         const alphaReal = parseFloat(document.getElementById('alpha-real').value) || 0;
         const alphaImag = parseFloat(document.getElementById('alpha-imag').value) || 0;
         const betaReal = parseFloat(document.getElementById('beta-real').value) || 0;
@@ -294,35 +183,7 @@ function handleSetState() {
         }
         state.alpha = { real: rawAlpha.real / norm, imag: rawAlpha.imag / norm };
         state.beta = { real: rawBeta.real / norm, imag: rawBeta.imag / norm };
-    } else {
-        console.log("gey");
-        const alphaReal = parseFloat(document.getElementById('alpha-real').value) || 0;
-        const alphaImag = parseFloat(document.getElementById('alpha-imag').value) || 0;
-        const betaReal = parseFloat(document.getElementById('beta-real').value) || 0;
-        const betaImag = parseFloat(document.getElementById('beta-imag').value) || 0;
-        const gammaReal = parseFloat(document.getElementById('gamma-real').value) || 0;
-        const gammaImag = parseFloat(document.getElementById('gamma-imag').value) || 0;
-        const deltaReal = parseFloat(document.getElementById('delta-real').value) || 0;
-        const deltaImag = parseFloat(document.getElementById('delta-imag').value) || 0;
-        const rawAlpha = { real: alphaReal, imag: alphaImag };
-        const rawBeta = { real: betaReal, imag: betaImag };
-        const rawGamma = { real: gammaReal, imag: gammaImag };
-        const rawDelta = { real: deltaReal, imag: deltaImag };
-        const norm = Math.sqrt(
-            complex.abs(rawAlpha) ** 2 +
-            complex.abs(rawBeta) ** 2 +
-            complex.abs(rawGamma) ** 2 +
-            complex.abs(rawDelta) ** 2
-        );
-        if (norm < 1e-9) {
-            errorMsg.textContent = 'State vector cannot be zero.';
-            return;
-        }
-        state.alpha = { real: rawAlpha.real / norm, imag: rawAlpha.imag / norm };
-        state.beta = { real: rawBeta.real / norm, imag: rawBeta.imag / norm };
-        state.gamma = { real: rawGamma.real / norm, imag: rawGamma.imag / norm };
-        state.delta = { real: rawDelta.real / norm, imag: rawDelta.imag / norm };
-    }
+    
     drawSphere();
     updateUI();
 }
@@ -370,7 +231,7 @@ export default function drawSphere(newState) {
     if (mode === 'single') {
         drawBlochSphere();
     } else {
-        drawQSphere();
+        drawBlochSphere();
     }
 }
 

@@ -152,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const results = await response.json();
             updateResults(results);
+            console.log(JSON.stringify(results));
 
             // --- Key: update sphere.js state and redraw ---
             const ketStr = results.statevector_str;
