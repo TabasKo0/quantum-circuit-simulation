@@ -1,6 +1,6 @@
 # Quantum Circuit Simulation
 
-A visual quantum circuit simulator with drag-and-drop interface built using Python (Qiskit) backend and HTML/JavaScript frontend. Create quantum circuits visually, simulate them in real-time, and visualize results with state vectors, probability distributions, and 3D Bloch sphere representations.
+A visual quantum circuit simulator with drag-and-drop interface built using Python (Qiskit) backend and HTML/JavaScript frontend. Created quantum circuits visually, simulate them in real-time, and visualize results with state vectors, probability distributions, and 3D Bloch sphere representations. 
 
 ## Features
 
