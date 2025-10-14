@@ -197,7 +197,7 @@ function handleModeChange() {
 
 // Gate buttons for single qubit
 function applyGate(gate) {
-    if (mode !== 'single') return;
+    //if (mode !== 'single') return;
     // Pauli gates for single qubit
     if (gate === 'X') {
         const newAlpha = state.beta;
