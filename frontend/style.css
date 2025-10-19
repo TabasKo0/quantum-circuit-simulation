@@ -1,5 +1,33 @@
-body { font-family: Arial, sans-serif; margin: 2em; background-color: #f4f4f9; color: #333; }
-h1, h3 { text-align: center; color: #4a4a8a; }
+body { font-family: Arial, sans-serif; margin: 2em; background-color: #0b1020; color: #e5e7eb; }
+h1, h3 { text-align: center; color: #e2e8f0; }
+
+/* Prominent rounded titles for key sections */
+body > h1,
+#results-container > h3,
+#bloch-container > h3,
+#gate-palette > h3,
+#circuit-container > h3 {
+    display: inline-block;
+    font-weight: 800;
+    font-size: 1.5rem; /* base for h3 pills */
+    letter-spacing: 0.5px;
+    background: #0a2540; /* higher contrast to container */
+    border: 1px solid #0891b2; /* cyan accent */
+    padding: 10px 18px;
+    border-radius: 9999px; /* curved pill */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35) inset, 0 1px 2px rgba(0,0,0,0.25);
+    margin: 10px auto 16px auto;
+}
+
+/* Center and size adjustments */
+body > h1 { display: block; width: fit-content; font-size: 2.5rem; }
+#results-container > h3, #bloch-container > h3, #gate-palette > h3, #circuit-container > h3 { width: fit-content; display: block; margin-left: auto; margin-right: auto; text-align: center; }
+
+/* Slightly smaller headings for palette and circuit sections as requested */
+#gate-palette > h3, #circuit-container > h3 {
+    font-size: 1.25rem;
+    padding: 6px 14px;
+}
 
 /* Tabs */
 .tabs { overflow: hidden; border-bottom: 1px solid #ccc; margin-bottom: 20px; }
@@ -9,16 +37,17 @@ h1, h3 { text-align: center; color: #4a4a8a; }
 .tab-content { display: none; padding: 6px 12px; border-top: none; }
 
 .main-container { display: flex; justify-content: space-evenly; gap: 30px; }
-#gate-palette, #circuit-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+#gate-palette, #circuit-container { background: #111827; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 #gate-palette { text-align: center; }
 
 .gate {
     display: inline-flex; justify-content: center; align-items: center;
     width: 75px; height: 40px; margin: 5px;
-    border: 1px solid #4a4a8a; background-color: #e8e8ff;
+    border: 1px solid #64748b; background-color: #1f2937; color: #e5e7eb;
     font-weight: bold; cursor: grab; user-select: none;
 }
-.gate.two-qubit { background-color: #ffdde8; border-color: #c76f8e; }
+.gate.two-qubit { background-color: #db2777; border-color: #f472b6; color: #ffffff; }
+.gate.two-qubit:hover { background-color: #be185d; }
 .gate:active { cursor: grabbing; }
 
 #circuit-board {
@@ -26,11 +55,11 @@ h1, h3 { text-align: center; color: #4a4a8a; }
     grid-template-columns: repeat(12, 50px);
     grid-template-rows: repeat(2, 50px);
     gap: 10px; padding: 20px;
-    border: 2px dashed #ccc; background-color: #fafafa;
+    border: 2px dashed #374151; background-color: #0f172a;
 }
 .circuit-slot {
     width: 50px; height: 50px;
-    border: 1px solid #ddd;
+    border: 1px solid #374151;
     display: flex; justify-content: center; align-items: center;
     position: relative;
 }
@@ -48,19 +77,20 @@ h1, h3 { text-align: center; color: #4a4a8a; }
 .controls { margin-top: 20px; text-align: center; }
 button {
     padding: 10px 20px; font-size: 16px; cursor: pointer;
-    border: none; border-radius: 5px; background-color: #4a4a8a;
+    border: 1px solid #374151; border-radius: 4px; background-color: #4a4a8a;
     color: white; margin: 0 10px;
 }
 button:hover { background-color: #35356b; }
-#clear-btn { background-color: #c76f8e; }
+#clear-btn { background-color: #c76f8e; border-color: #f472b6; }
 #clear-btn:hover { background-color: #a35671; }
 
-#results-container { margin-top: 30px; background: white; padding: 20px; border-radius: 8px; }
-#statevector-output { display:flex; justify-content:center; font-family: 'Courier New', Courier, monospace; font-size: 1.5em; background: #eee; padding: 15px; border-radius: 5px; }
+#results-container { margin-top: 30px; background: #111827; padding: 20px; border-radius: 8px; }
+#bloch-container { margin-top: 30px; background: #111827; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+#statevector-output { display:block; font-family: 'Courier New', Courier, monospace; font-size: 1.5em; background: #1f2937; padding: 12px 18px; border-radius: 10px; color: #e5e7eb; margin: 0 auto; width: fit-content; text-align: center; }
 
 /* Bloch Sphere Styles */
 .bloch-container { display: flex; gap: 30px; align-items: flex-start; }
-#bloch-sphere-canvas { width: 500px; height: 500px; border: 1px solid #ccc; }
+#bloch-sphere-canvas { width: 500px; height: 500px; border: 1px solid #374151; }
 .bloch-controls { display: flex; flex-direction: column; gap: 10px; }
 .custom-state-inputs input { width: 60px; }
 

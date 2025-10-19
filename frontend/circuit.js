@@ -186,12 +186,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 probs['11'].toFixed(1) + '%'
             ],
             textposition: 'auto',
-            marker: { color: '#4a4a8a' },
+            marker: { color: '#6366f1' },
         }];
         const layout = {
-            title: 'Measurement Probabilities',
-            xaxis: { title: 'Basis States' },
-            yaxis: { title: 'Probability (%)', range: [0, 100] },
+            title: { text: 'Measurement Probabilities', font: { color: '#e5e7eb' } },
+            paper_bgcolor: '#111827',
+            plot_bgcolor: '#0b1020',
+            font: { color: '#e5e7eb' },
+            xaxis: {
+                title: { text: 'Basis States', font: { color: '#e5e7eb' } },
+                tickfont: { color: '#cbd5e1' },
+                gridcolor: '#1f2937',
+                zerolinecolor: '#374151',
+                linecolor: '#374151'
+            },
+            yaxis: {
+                title: { text: 'Probability (%)', font: { color: '#e5e7eb' } },
+                tickfont: { color: '#cbd5e1' },
+                gridcolor: '#1f2937',
+                zerolinecolor: '#374151',
+                linecolor: '#374151',
+                range: [0, 100]
+            },
+            margin: { t: 50, r: 30, b: 60, l: 60 }
         };
         Plotly.newPlot('probability-chart', data, layout);
     }
