@@ -1,0 +1,5 @@
+Flask
+qiskit
+qiskit-aer
+numpy
+Flask-Cors

@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { font-family: 'Inter', sans-serif; }
+.gate-btn { transition: all 0.2s; }
+.gate-btn:hover { transform: scale(1.05); }
+
+/* Gate Tooltip Styles */
+.gate-tooltip {
+  animation: tooltipFadeIn 0.2s ease-in-out;
+  margin-bottom: 8px;
+}
+
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -100%) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%) translateY(0);
+  }
+}
+
+.gate-tooltip.fade-out {
+  animation: tooltipFadeOut 0.2s ease-in-out;
+}
+
+@keyframes tooltipFadeOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -100%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -100%) translateY(-5px);
+  }
+}
