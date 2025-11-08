@@ -96,15 +96,16 @@ export default function Sphere({ stateVector }) {
 
   useEffect(() => {
     // Remove any extra canvases added by hot reloads or remounts
-    if (mountRef.current) {
+    const mount = mountRef.current;
+    if (mount) {
       // Remove all child nodes (including old canvases) before adding new
-      while (mountRef.current.firstChild) {
-        mountRef.current.removeChild(mountRef.current.firstChild);
+      while (mount.firstChild) {
+        mount.removeChild(mount.firstChild);
       }
     }
 
-    const width = mountRef.current.clientWidth || 400;
-    const height = mountRef.current.clientHeight || 400;
+    const width = mount.clientWidth || 400;
+    const height = mount.clientHeight || 400;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0b1020);
     sceneRef.current = scene;
@@ -119,7 +120,7 @@ export default function Sphere({ stateVector }) {
     renderer.setClearColor(0x0b1020, 1);
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
-    mountRef.current.appendChild(renderer.domElement);
+    mount.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
     // Controls
@@ -193,9 +194,9 @@ export default function Sphere({ stateVector }) {
 
     // Resize
     function handleResize() {
-      if (!mountRef.current) return;
-      const width = mountRef.current.clientWidth;
-      const height = mountRef.current.clientHeight;
+      if (!mount) return;
+      const width = mount.clientWidth;
+      const height = mount.clientHeight;
       renderer.setSize(width, height);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -207,9 +208,9 @@ export default function Sphere({ stateVector }) {
       window.removeEventListener("resize", handleResize);
       renderer.dispose();
       // Remove all children (canvas) on cleanup
-      if (mountRef.current) {
-        while (mountRef.current.firstChild) {
-          mountRef.current.removeChild(mountRef.current.firstChild);
+      if (mount) {
+        while (mount.firstChild) {
+          mount.removeChild(mount.firstChild);
         }
       }
     };
