@@ -19,16 +19,35 @@ export default function ProbabilityBarChart({ probabilities }) {
           type: 'bar',
           text: values.map(v => v.toFixed(1) + '%'),
           textposition: 'auto',
-          marker: { color: '#4a4a8a' },
+          marker: { color: '#6366f1' },
         },
       ]}
       layout={{
-        title: 'Measurement Probabilities',
-        xaxis: { title: 'Basis States' },
-        yaxis: { title: 'Probability (%)', range: [0, 100] },
-        margin: { t: 40, l: 40, r: 20, b: 40 }
+        title: { 
+          text: 'Measurement Probabilities',
+          font: { color: '#e5e7eb' }
+        },
+        paper_bgcolor: '#111827',
+        plot_bgcolor: '#0b1020',
+        font: { color: '#e5e7eb' },
+        xaxis: { 
+          title: { text: 'Basis States', font: { color: '#e5e7eb' } },
+          tickfont: { color: '#cbd5e1' },
+          gridcolor: '#1f2937',
+          zerolinecolor: '#374151',
+          linecolor: '#374151'
+        },
+        yaxis: { 
+          title: { text: 'Probability (%)', font: { color: '#e5e7eb' } },
+          tickfont: { color: '#cbd5e1' },
+          gridcolor: '#1f2937',
+          zerolinecolor: '#374151',
+          linecolor: '#374151',
+          range: [0, 100]
+        },
+        margin: { t: 50, l: 60, r: 30, b: 60 }
       }}
-      style={{ width: '100%', height: 300 }}
+      style={{ width: '100%', height: 350 }}
       config={{ displayModeBar: false }}
     />
   );
