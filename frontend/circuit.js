@@ -1,5 +1,6 @@
 import drawSphere from './sphere.js';
 
+<<<<<<< HEAD
 // Gate information with names, matrices, and descriptions
 const GATE_INFO = {
     'H': {
@@ -72,6 +73,8 @@ const GATE_INFO = {
     }
 };
 
+=======
+>>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
 document.addEventListener('DOMContentLoaded', () => {
     const circuitBoard = document.getElementById('circuit-board');
     const gates = document.querySelectorAll('#gate-palette .gate');
@@ -81,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const NUM_QUBITS = 2;
     const NUM_COLS = 12;
 
+<<<<<<< HEAD
     // Create tooltip element
     const tooltip = document.createElement('div');
     tooltip.className = 'gate-tooltip';
@@ -89,6 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let tooltipTimeout = null;
 
+=======
+>>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
     // Initialize Circuit Board
     function initializeBoard() {
         circuitBoard.innerHTML = '';
@@ -102,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addDragDropListeners();
     }
 
+<<<<<<< HEAD
     // Tooltip functions
     function showTooltip(e, gateName) {
         if (tooltipTimeout) {
@@ -151,11 +158,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
 
+=======
+>>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
     // Drag and Drop Logic
     let draggedGate = null;
     gates.forEach(gate => {
         gate.addEventListener('dragstart', (e) => {
             draggedGate = e.target;
+<<<<<<< HEAD
             tooltip.style.display = 'none';
         });
 
@@ -179,6 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 hideTooltip();
             }, 2000);
+=======
+>>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
         });
     });
 

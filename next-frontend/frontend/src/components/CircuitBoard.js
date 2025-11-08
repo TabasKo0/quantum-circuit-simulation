@@ -3,6 +3,7 @@ import ProbabilityBarChart from './ProbabilityBarChart';
 
 const NUM_QUBITS = 2;
 const NUM_COLS = 12;
+<<<<<<< HEAD
 
 // Gate information with names, matrices, and descriptions
 const GATE_INFO = {
@@ -76,6 +77,8 @@ const GATE_INFO = {
   }
 };
 
+=======
+>>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
 const GATES = [
   { name: 'H', display: 'H', class: 'bg-gray-200' },
   { name: 'X', display: 'X', class: 'bg-gray-200' },
@@ -102,8 +105,11 @@ export default function CircuitBoard({ onSimulate }) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const draggedGate = useRef(null);
+<<<<<<< HEAD
   const [tooltip, setTooltip] = useState({ show: false, gate: null, x: 0, y: 0 });
   const tooltipTimeoutRef = useRef(null);
+=======
+>>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
 
   // Drag and Drop Handlers
   function handleDragStart(gate) {
@@ -134,6 +140,7 @@ export default function CircuitBoard({ onSimulate }) {
     e.preventDefault();
   }
 
+<<<<<<< HEAD
   // Tooltip handlers
   function handleMouseEnter(e, gateName) {
     if (tooltipTimeoutRef.current) {
@@ -179,6 +186,8 @@ export default function CircuitBoard({ onSimulate }) {
     }, 2000); // Show for 2 seconds on touch
   }
 
+=======
+>>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
   // Clear board
   function clearBoard() {
     setBoard(emptyBoard());
@@ -277,12 +286,17 @@ export default function CircuitBoard({ onSimulate }) {
   return (
     <div className="flex flex-col gap-6">
       {/* Palette */}
+<<<<<<< HEAD
       <div id="gate-palette" className="mb-2 relative">
+=======
+      <div id="gate-palette" className="mb-2">
+>>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
         <h3 className="text-lg font-bold mb-3">Gate Palette</h3>
         <div className="flex flex-wrap gap-2">
           {GATES.map(g => (
             <div
               key={g.name}
+<<<<<<< HEAD
               className={`gate cursor-pointer px-4 py-2 rounded ${g.class} relative`}
               draggable
               onDragStart={() => handleDragStartWithTooltip(g.name)}
@@ -290,11 +304,17 @@ export default function CircuitBoard({ onSimulate }) {
               onMouseLeave={handleMouseLeave}
               onTouchStart={(e) => handleTouchStart(e, g.name)}
               onTouchEnd={handleTouchEnd}
+=======
+              className={`gate cursor-pointer px-4 py-2 rounded ${g.class}`}
+              draggable
+              onDragStart={() => handleDragStart(g.name)}
+>>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
             >
               {g.display}
             </div>
           ))}
         </div>
+<<<<<<< HEAD
         
         {/* Tooltip */}
         {tooltip.show && tooltip.gate && (
@@ -347,6 +367,8 @@ export default function CircuitBoard({ onSimulate }) {
             </div>
           </div>
         )}
+=======
+>>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
       </div>
 
       {/* Board */}
