@@ -3,7 +3,6 @@ import ProbabilityBarChart from './ProbabilityBarChart';
 
 const NUM_QUBITS = 2;
 const NUM_COLS = 12;
-<<<<<<< HEAD
 
 // Gate information with names, matrices, and descriptions
 const GATE_INFO = {
@@ -77,8 +76,6 @@ const GATE_INFO = {
   }
 };
 
-=======
->>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
 const GATES = [
   { name: 'H', display: 'H', class: 'bg-gray-200' },
   { name: 'X', display: 'X', class: 'bg-gray-200' },
@@ -105,11 +102,8 @@ export default function CircuitBoard({ onSimulate }) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const draggedGate = useRef(null);
-<<<<<<< HEAD
   const [tooltip, setTooltip] = useState({ show: false, gate: null, x: 0, y: 0 });
   const tooltipTimeoutRef = useRef(null);
-=======
->>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
 
   // Drag and Drop Handlers
   function handleDragStart(gate) {
@@ -140,7 +134,6 @@ export default function CircuitBoard({ onSimulate }) {
     e.preventDefault();
   }
 
-<<<<<<< HEAD
   // Tooltip handlers
   function handleMouseEnter(e, gateName) {
     if (tooltipTimeoutRef.current) {
@@ -186,8 +179,6 @@ export default function CircuitBoard({ onSimulate }) {
     }, 2000); // Show for 2 seconds on touch
   }
 
-=======
->>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
   // Clear board
   function clearBoard() {
     setBoard(emptyBoard());
@@ -286,35 +277,31 @@ export default function CircuitBoard({ onSimulate }) {
   return (
     <div className="flex flex-col gap-6">
       {/* Palette */}
-<<<<<<< HEAD
-      <div id="gate-palette" className="mb-2 relative">
-=======
-      <div id="gate-palette" className="mb-2">
->>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
-        <h3 className="text-lg font-bold mb-3">Gate Palette</h3>
-        <div className="flex flex-wrap gap-2">
-          {GATES.map(g => (
-            <div
-              key={g.name}
-<<<<<<< HEAD
-              className={`gate cursor-pointer px-4 py-2 rounded ${g.class} relative`}
-              draggable
-              onDragStart={() => handleDragStartWithTooltip(g.name)}
-              onMouseEnter={(e) => handleMouseEnter(e, g.name)}
-              onMouseLeave={handleMouseLeave}
-              onTouchStart={(e) => handleTouchStart(e, g.name)}
-              onTouchEnd={handleTouchEnd}
-=======
-              className={`gate cursor-pointer px-4 py-2 rounded ${g.class}`}
-              draggable
-              onDragStart={() => handleDragStart(g.name)}
->>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
-            >
-              {g.display}
-            </div>
-          ))}
+      <div id="gate-palette" className="mb-2 relative bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Gate Palette</h3>
+        <div className="flex flex-wrap gap-3 justify-center">
+          {GATES.map(g => {
+            const isTwoQubit = g.name === 'CNOT' || g.name === 'CZ';
+            return (
+              <div
+                key={g.name}
+                className={`gate cursor-pointer px-4 py-2 rounded font-bold relative ${
+                  isTwoQubit 
+                    ? 'bg-pink-600 hover:bg-pink-700 text-white border border-pink-400' 
+                    : 'bg-gray-700 hover:bg-gray-600 text-gray-100 border border-gray-600'
+                }`}
+                draggable
+                onDragStart={() => handleDragStartWithTooltip(g.name)}
+                onMouseEnter={(e) => handleMouseEnter(e, g.name)}
+                onMouseLeave={handleMouseLeave}
+                onTouchStart={(e) => handleTouchStart(e, g.name)}
+                onTouchEnd={handleTouchEnd}
+              >
+                {g.display}
+              </div>
+            );
+          })}
         </div>
-<<<<<<< HEAD
         
         {/* Tooltip */}
         {tooltip.show && tooltip.gate && (
@@ -367,23 +354,21 @@ export default function CircuitBoard({ onSimulate }) {
             </div>
           </div>
         )}
-=======
->>>>>>> 80c10939dfb232cb38f61121f812c39a7a8d1835
       </div>
 
       {/* Board */}
-      <div id="circuit-container" className="mb-2">
-        <h3 className="text-lg font-bold mb-3">Quantum Circuit</h3>
+      <div id="circuit-container" className="mb-2 bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Quantum Circuit</h3>
         <div
           id="circuit-board"
-          className="grid"
+          className="grid mb-4"
           style={{
             gridTemplateColumns: `repeat(${NUM_COLS}, 50px)`,
             gridTemplateRows: `repeat(${NUM_QUBITS}, 50px)`,
             gap: '10px',
             padding: '20px',
-            border: '2px dashed #ccc',
-            backgroundColor: '#fafafa'
+            border: '2px dashed #374151',
+            backgroundColor: '#0f172a'
           }}
         >
           {Array(NUM_QUBITS * NUM_COLS).fill(0).map((_, i) => {
@@ -393,7 +378,7 @@ export default function CircuitBoard({ onSimulate }) {
             return (
               <div
                 key={i}
-                className="circuit-slot flex items-center justify-center border rounded relative"
+                className="circuit-slot flex items-center justify-center border border-gray-700 rounded relative bg-gray-900"
                 style={{ width: 50, height: 50 }}
                 data-row={row}
                 data-col={col}
@@ -401,11 +386,11 @@ export default function CircuitBoard({ onSimulate }) {
                 onDrop={() => handleDrop(row, col)}
               >
                 {slot.gate && (
-                  <div className={`gate ${slot.gate === 'CNOT' || slot.gate === 'CZ' ? 'two-qubit' : ''}`}>
+                  <div className={`gate font-bold text-sm ${slot.gate === 'CNOT' || slot.gate === 'CZ' ? 'text-white' : 'text-gray-100'}`}>
                     {slot.gate}
                   </div>
                 )}
-                {slot.symbol && <div className="gate">{slot.symbol}</div>}
+                {slot.symbol && <div className="gate text-pink-400 font-bold text-xl">{slot.symbol}</div>}
                 {/* Control line for CNOT/CZ */}
                 {slot.gate && (slot.gate === 'CNOT' || slot.gate === 'CZ') && (
                   <div className="control-line absolute left-1/2" style={{
@@ -420,48 +405,38 @@ export default function CircuitBoard({ onSimulate }) {
           })}
         </div>
         {/* Controls */}
-        <div className="controls mt-4 flex gap-4">
-          <button id="simulate-btn" onClick={simulateCircuit} className="bg-cyan-600 text-white px-4 py-2 rounded">
+        <div className="controls mt-4 flex gap-4 justify-center">
+          <button 
+            id="simulate-btn" 
+            onClick={simulateCircuit} 
+            disabled={isLoading}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold transition-colors disabled:bg-blue-400"
+          >
             {isLoading ? "Simulating..." : "Simulate"}
           </button>
-          <button id="clear-btn" onClick={clearBoard} className="bg-pink-400 text-white px-4 py-2 rounded">
+          <button 
+            id="clear-btn" 
+            onClick={clearBoard} 
+            className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded font-bold transition-colors"
+          >
             Clear Circuit
           </button>
         </div>
       </div>
 
       {/* Results */}
-      <div id="results-container" className="bg-white p-4 rounded shadow">
-        <h3 className="text-lg font-bold mb-3">Simulation Output</h3>
-        <div id="statevector-output" className="mb-2">
-          <p className="font-mono text-lg">
+      <div id="results-container" className="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Simulation Output</h3>
+        <div id="statevector-output" className="mb-4 bg-gray-900 p-4 rounded-lg">
+          <p className="font-mono text-lg text-gray-100">
             Final State Vector:
-            <span className="ml-2 align-middle text-blue-700">{results.statevector_str}</span>
+            <span className="ml-2 text-cyan-300 font-bold">{results.statevector_str}</span>
           </p>
         </div>
-        <div id="probability-chart">
-          <div className="flex gap-6 font-mono">
-            {['00', '01', '10', '11'].map(basis => (
-              <div key={basis}>
-                <div className="text-gray-700">{'|' + basis + '⟩'}</div>
-                <div className="font-bold">{results.probabilities[basis]?.toFixed(1) || 0}%</div>
-              </div>
-            ))}
-          </div>
+        <div id="probability-chart" className="bg-gray-900 p-4 rounded-lg">
+          <ProbabilityBarChart probabilities={results.probabilities} />
         </div>
       </div>
-      <div id="results-container" className="bg-white p-4 rounded shadow">
-  <h3 className="text-lg font-bold mb-3">Simulation Output</h3>
-  <div id="statevector-output" className="mb-2">
-    <p className="font-mono text-lg">
-      Final State Vector:
-      <span className="ml-2 align-middle text-blue-700">{results.statevector_str}</span>
-    </p>
-  </div>
-  <div id="probability-chart">
-    <ProbabilityBarChart probabilities={results.probabilities} />
-  </div>
-</div>
     </div>
   );
 }
