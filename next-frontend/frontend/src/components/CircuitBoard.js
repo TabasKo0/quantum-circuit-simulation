@@ -4,7 +4,7 @@ import ProbabilityBarChart from './ProbabilityBarChart';
 const NUM_QUBITS = 2;
 const NUM_COLS = 12;
 
-// Gate information with names, matrices, and descriptions
+/* (GATE_INFO, GATES, emptyBoard, etc. remain unchanged) */
 const GATE_INFO = {
   'H': {
     name: 'Hadamard Gate',
@@ -134,7 +134,7 @@ export default function CircuitBoard({ onSimulate }) {
     e.preventDefault();
   }
 
-  // Tooltip handlers
+  // Tooltip handlers (unchanged)
   function handleMouseEnter(e, gateName) {
     if (tooltipTimeoutRef.current) {
       clearTimeout(tooltipTimeoutRef.current);
@@ -194,35 +194,55 @@ export default function CircuitBoard({ onSimulate }) {
     });
   }
 
-  // Parse ket string to amplitudes
-  function parseKetString(str) {
-    const regex = /\(([^)]+)\)\|(\d+⟩)/g;
-    let match;
-    const basis = {};
-    while ((match = regex.exec(str)) !== null) {
-      let coeff = match[1].replace(/\s+/g, '');
-      let ket = match[2].replace('⟩', '');
-      let real = 0, imag = 0;
-      if (/^[+-]?[\d.]+$/.test(coeff)) {
-        real = parseFloat(coeff);
-      } else if (/^[+-]?[\d.]+j$/.test(coeff)) {
-        imag = parseFloat(coeff.replace('j', ''));
-      } else if (/^[+-]?[\d.]+[+-][\d.]+j$/.test(coeff)) {
-        let realPart = coeff.split(/[+-]/)[0];
-        let imagPart = coeff.slice(realPart.length);
-        real = parseFloat(realPart);
-        imag = parseFloat(imagPart.replace('j', ''));
-      }
-      basis[ket] = [real, imag];
+  // Robust complex parser: handles "0.707", "-0.707", "0.707+0.707j", "-0.707-0.707j", "0j", etc.
+  function parseComplex(str) {
+    const s = String(str).replace(/\s+/g, '');
+    if (!s.includes('j')) {
+      const r = parseFloat(s);
+      return [isNaN(r) ? 0 : r, 0];
     }
-    // |00⟩, |01⟩, |10⟩, |11⟩
-    let arr = [];
+    // remove trailing j
+    const core = s.slice(0, -1);
+    // find split point: last '+' or '-' that is not the leading sign
+    let splitIdx = -1;
+    for (let i = core.length - 1; i > 0; i--) {
+      if (core[i] === '+' || core[i] === '-') {
+        splitIdx = i;
+        break;
+      }
+    }
+    if (splitIdx === -1) {
+      // purely imaginary like "0.707j" or "-0.5j"
+      const imag = parseFloat(core);
+      return [0, isNaN(imag) ? 0 : imag];
+    }
+    const realPart = core.slice(0, splitIdx);
+    const imagPart = core.slice(splitIdx);
+    const real = parseFloat(realPart);
+    const imag = parseFloat(imagPart);
+    return [isNaN(real) ? 0 : real, isNaN(imag) ? 0 : imag];
+  }
+
+  // New robust statevector parser that matches backend format like:
+  // "(0.707+0.707j)|10⟩(0.000)|11⟩..."
+  function parseStatevector(stateStr) {
+    const regex = /\(([^)]+)\)\|([01]{2})⟩/g;
+    const basisMap = {};
+    let m;
+    while ((m = regex.exec(stateStr)) !== null) {
+      const coeffStr = m[1];
+      const ket = m[2]; // '00', '01', '10', '11'
+      const [real, imag] = parseComplex(coeffStr);
+      basisMap[ket] = [real, imag];
+    }
+    // Ensure order: |00>, |01>, |10>, |11>
+    const arr = [];
     for (let i = 0; i < 4; i++) {
-      let ket = i.toString(2).padStart(2, '0');
-      let v = basis[ket] || [0, 0];
+      const ket = i.toString(2).padStart(2, '0');
+      const v = basisMap[ket] || [0, 0];
       arr.push(v[0], v[1]);
     }
-    return arr;
+    return arr; // [r00,i00, r01,i01, r10,i10, r11,i11]
   }
 
   // Compose board to API data
@@ -250,25 +270,29 @@ export default function CircuitBoard({ onSimulate }) {
     setIsLoading(true);
     try {
       const circuitData = boardToCircuitData();
-      const response = await fetch('http://127.0.0.1:5000/simulate', {
+      // Use the Next.js API route proxy instead of calling backend directly
+      const response = await fetch('/api/simulate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ circuit: circuitData }),
       });
+
       const results = await response.json();
       setResults(results);
 
-      // Update Bloch sphere
-      const ketStr = results.statevector_str;
-      const jinga = parseKetString(ketStr);
+      // Update Bloch sphere using robust parser
+      const ketStr = results.statevector_str || '';
+      const parsed = parseStatevector(ketStr);
+      // parsed is [r00,i00, r01,i01, r10,i10, r11,i11]
       onSimulate({
-        alpha: { real: jinga[0], imag: jinga[1] },
-        beta: { real: jinga[2], imag: jinga[3] },
-        gamma: { real: jinga[4], imag: jinga[5] },
-        delta: { real: jinga[6], imag: jinga[7] }
+        alpha: { real: parsed[0] || 0, imag: parsed[1] || 0 }, // |00>
+        beta:  { real: parsed[2] || 0, imag: parsed[3] || 0 }, // |01>
+        gamma: { real: parsed[4] || 0, imag: parsed[5] || 0 }, // |10>
+        delta: { real: parsed[6] || 0, imag: parsed[7] || 0 }  // |11>
       });
     } catch (error) {
-      alert('Failed to connect to the backend simulator.');
+      alert('Failed to connect to the backend simulator (via /api/simulate).');
+      console.error(error);
     }
     setIsLoading(false);
   }
@@ -276,154 +300,155 @@ export default function CircuitBoard({ onSimulate }) {
   // Render
   return (
     <div className="flex flex-col gap-6">
-      {/* Palette */}
-      <div id="gate-palette" className="mb-2 relative bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Gate Palette</h3>
-        <div className="flex flex-wrap gap-3 justify-center">
-          {GATES.map(g => {
-            const isTwoQubit = g.name === 'CNOT' || g.name === 'CZ';
-            return (
-              <div
-                key={g.name}
-                className={`gate cursor-pointer px-4 py-2 rounded font-bold relative ${
-                  isTwoQubit 
-                    ? 'bg-pink-600 hover:bg-pink-700 text-white border border-pink-400' 
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-100 border border-gray-600'
-                }`}
-                draggable
-                onDragStart={() => handleDragStartWithTooltip(g.name)}
-                onMouseEnter={(e) => handleMouseEnter(e, g.name)}
-                onMouseLeave={handleMouseLeave}
-                onTouchStart={(e) => handleTouchStart(e, g.name)}
-                onTouchEnd={handleTouchEnd}
-              >
-                {g.display}
+      <div className='flex md:flex-row flex-col gap-4'>
+        {/* Palette */}
+        <div id="gate-palette" className="mb-2 relative bg-gray-800 p-6 rounded-lg shadow-lg">
+          <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Gate Palette</h3>
+          <div className="flex flex-wrap gap-3 justify-between">
+            {GATES.map(g => {
+              const isTwoQubit = g.name === 'CNOT' || g.name === 'CZ';
+              return (
+                <div
+                  key={g.name}
+                  className={`gate cursor-pointer text-2xl px-4 py-2 rounded font-bold relative ${
+                    isTwoQubit 
+                      ? 'bg-pink-600 hover:bg-pink-700 text-white border border-pink-400' 
+                      : 'bg-gray-700 hover:bg-gray-600 text-gray-100 border border-gray-600'
+                  }`}
+                  draggable
+                  onDragStart={() => handleDragStartWithTooltip(g.name)}
+                  onMouseEnter={(e) => handleMouseEnter(e, g.name)}
+                  onMouseLeave={handleMouseLeave}
+                  onTouchStart={(e) => handleTouchStart(e, g.name)}
+                  onTouchEnd={handleTouchEnd}
+                >
+                  {g.display}
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Tooltip */}
+          {tooltip.show && tooltip.gate && (
+            <div
+              className="gate-tooltip"
+              style={{
+                position: 'fixed',
+                left: `${tooltip.x}px`,
+                top: `${tooltip.y}px`,
+                transform: 'translate(-50%, -100%)',
+                zIndex: 1000,
+                pointerEvents: 'none'
+              }}
+            >
+              <div className="bg-gray-900 text-white rounded-lg shadow-xl p-4 border border-gray-700 min-w-[200px] relative">
+                <div className="font-bold text-lg mb-2 text-cyan-400">
+                  {GATE_INFO[tooltip.gate].name}
+                </div>
+                <div className="mb-2">
+                  <div className="text-xs text-gray-400 mb-1">Matrix:</div>
+                  <div className="bg-gray-800 p-2 rounded font-mono text-sm">
+                    <table className="mx-auto">
+                      <tbody>
+                        {GATE_INFO[tooltip.gate].matrix.map((row, i) => (
+                          <tr key={i}>
+                            {row.map((cell, j) => (
+                              <td key={j} className="px-2 py-1 text-center">
+                                {cell}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div className="text-sm text-gray-300 italic">
+                  {GATE_INFO[tooltip.gate].description}
+                </div>
+                <div 
+                  className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full"
+                  style={{
+                    width: 0,
+                    height: 0,
+                    borderLeft: '8px solid transparent',
+                    borderRight: '8px solid transparent',
+                    borderTop: '8px solid #374151'
+                  }}
+                />
               </div>
-            );
-          })}
+            </div>
+          )}
         </div>
-        
-        {/* Tooltip */}
-        {tooltip.show && tooltip.gate && (
+
+        {/* Board */}
+        <div id="circuit-container" className="mb-2 bg-gray-800 p-6 rounded-lg shadow-lg">
+          <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Quantum Circuit</h3>
           <div
-            className="gate-tooltip"
+            id="circuit-board"
+            className="grid mb-4"
             style={{
-              position: 'fixed',
-              left: `${tooltip.x}px`,
-              top: `${tooltip.y}px`,
-              transform: 'translate(-50%, -100%)',
-              zIndex: 1000,
-              pointerEvents: 'none'
+              gridTemplateColumns: `repeat(${NUM_COLS}, 50px)`,
+              gridTemplateRows: `repeat(${NUM_QUBITS}, 50px)`,
+              gap: '10px',
+              padding: '20px',
+              border: '2px dashed #374151',
+              backgroundColor: '#0f172a'
             }}
           >
-            <div className="bg-gray-900 text-white rounded-lg shadow-xl p-4 border border-gray-700 min-w-[200px] relative">
-              <div className="font-bold text-lg mb-2 text-cyan-400">
-                {GATE_INFO[tooltip.gate].name}
-              </div>
-              <div className="mb-2">
-                <div className="text-xs text-gray-400 mb-1">Matrix:</div>
-                <div className="bg-gray-800 p-2 rounded font-mono text-sm">
-                  <table className="mx-auto">
-                    <tbody>
-                      {GATE_INFO[tooltip.gate].matrix.map((row, i) => (
-                        <tr key={i}>
-                          {row.map((cell, j) => (
-                            <td key={j} className="px-2 py-1 text-center">
-                              {cell}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            {Array(NUM_QUBITS * NUM_COLS).fill(0).map((_, i) => {
+              const row = Math.floor(i / NUM_COLS);
+              const col = i % NUM_COLS;
+              const slot = board[row][col];
+              return (
+                <div
+                  key={i}
+                  className="circuit-slot flex items-center justify-center border border-gray-700 rounded relative bg-gray-900"
+                  style={{ width: 50, height: 50 }}
+                  data-row={row}
+                  data-col={col}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop(row, col)}
+                >
+                  {slot.gate && (
+                    <div className={`gate font-bold text-sm ${slot.gate === 'CNOT' || slot.gate === 'CZ' ? 'text-white' : 'text-gray-100'}`}>
+                      {slot.gate}
+                    </div>
+                  )}
+                  {slot.symbol && <div className="gate text-pink-400 font-bold text-xl">{slot.symbol}</div>}
+                  {/* Control line for CNOT/CZ */}
+                  {slot.gate && (slot.gate === 'CNOT' || slot.gate === 'CZ') && (
+                    <div className="control-line absolute left-1/2" style={{
+                      width: '2px',
+                      height: '60px',
+                      backgroundColor: '#c76f8e',
+                      top: row === 0 ? '0' : '-60px',
+                    }}></div>
+                  )}
                 </div>
-              </div>
-              <div className="text-sm text-gray-300 italic">
-                {GATE_INFO[tooltip.gate].description}
-              </div>
-              <div 
-                className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full"
-                style={{
-                  width: 0,
-                  height: 0,
-                  borderLeft: '8px solid transparent',
-                  borderRight: '8px solid transparent',
-                  borderTop: '8px solid #374151'
-                }}
-              />
-            </div>
+              );
+            })}
           </div>
-        )}
-      </div>
-
-      {/* Board */}
-      <div id="circuit-container" className="mb-2 bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Quantum Circuit</h3>
-        <div
-          id="circuit-board"
-          className="grid mb-4"
-          style={{
-            gridTemplateColumns: `repeat(${NUM_COLS}, 50px)`,
-            gridTemplateRows: `repeat(${NUM_QUBITS}, 50px)`,
-            gap: '10px',
-            padding: '20px',
-            border: '2px dashed #374151',
-            backgroundColor: '#0f172a'
-          }}
-        >
-          {Array(NUM_QUBITS * NUM_COLS).fill(0).map((_, i) => {
-            const row = Math.floor(i / NUM_COLS);
-            const col = i % NUM_COLS;
-            const slot = board[row][col];
-            return (
-              <div
-                key={i}
-                className="circuit-slot flex items-center justify-center border border-gray-700 rounded relative bg-gray-900"
-                style={{ width: 50, height: 50 }}
-                data-row={row}
-                data-col={col}
-                onDragOver={handleDragOver}
-                onDrop={() => handleDrop(row, col)}
-              >
-                {slot.gate && (
-                  <div className={`gate font-bold text-sm ${slot.gate === 'CNOT' || slot.gate === 'CZ' ? 'text-white' : 'text-gray-100'}`}>
-                    {slot.gate}
-                  </div>
-                )}
-                {slot.symbol && <div className="gate text-pink-400 font-bold text-xl">{slot.symbol}</div>}
-                {/* Control line for CNOT/CZ */}
-                {slot.gate && (slot.gate === 'CNOT' || slot.gate === 'CZ') && (
-                  <div className="control-line absolute left-1/2" style={{
-                    width: '2px',
-                    height: '60px',
-                    backgroundColor: '#c76f8e',
-                    top: row === 0 ? '0' : '-60px',
-                  }}></div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        {/* Controls */}
-        <div className="controls mt-4 flex gap-4 justify-center">
-          <button 
-            id="simulate-btn" 
-            onClick={simulateCircuit} 
-            disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold transition-colors disabled:bg-blue-400"
-          >
-            {isLoading ? "Simulating..." : "Simulate"}
-          </button>
-          <button 
-            id="clear-btn" 
-            onClick={clearBoard} 
-            className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded font-bold transition-colors"
-          >
-            Clear Circuit
-          </button>
+          {/* Controls */}
+          <div className="controls mt-4 flex gap-4 justify-center">
+            <button 
+              id="simulate-btn" 
+              onClick={simulateCircuit} 
+              disabled={isLoading}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold transition-colors disabled:bg-blue-400"
+            >
+              {isLoading ? "Simulating..." : "Simulate"}
+            </button>
+            <button 
+              id="clear-btn" 
+              onClick={clearBoard} 
+              className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded font-bold transition-colors"
+            >
+              Clear Circuit
+            </button>
+          </div>
         </div>
       </div>
-
       {/* Results */}
       <div id="results-container" className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Simulation Output</h3>
