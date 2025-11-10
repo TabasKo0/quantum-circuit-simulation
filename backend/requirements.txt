@@ -1,5 +1,9 @@
+# merge these lines into your existing backend/requirements.txt (do not duplicate)
 Flask
+flask-cors
+numpy
 qiskit
 qiskit-aer
-numpy
-Flask-Cors
+gunicorn==20.1.0
+# if backend uses FastAPI, add uvicorn as well:
+# uvicorn==0.23.0

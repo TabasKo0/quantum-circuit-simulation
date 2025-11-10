@@ -1,11 +1,12 @@
 server {
-    listen ${PORT:-80} default_server;
+    # envsubst will replace ${PORT} with the runtime value set in start.sh
+    listen ${PORT} default_server;
     server_name _;
 
     client_max_body_size 20M;
 
-    # Health check (nginx proxies /health to backend/health)
-    location /health {
+    # Health check
+    location /api/health {
         proxy_pass http://127.0.0.1:8000/health;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -13,9 +14,8 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # API -> backend
+    # API -> backend (note trailing slash on proxy_pass)
     location /api/ {
-        # trailing slash on proxy_pass strips the location prefix, so /api/health -> /health on backend
         proxy_pass http://127.0.0.1:8000/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -31,7 +31,7 @@ server {
         proxy_pass http://127.0.0.1:3000;
     }
 
-    # Everything else -> Next (SSR)
+    # Everything else -> Next
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
