@@ -3,11 +3,27 @@ import dynamic from 'next/dynamic';
 // Use dynamic import to ensure Plotly is only loaded on the client (avoids "self is not defined" SSR error)
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
-export default function ProbabilityBarChart({ probabilities }) {
+export default function ProbabilityBarChart({ probabilities = {}, reverseBitOrder = false }) {
   const basis = ['|00⟩', '|01⟩', '|10⟩', '|11⟩'];
-  const values = basis.map((b, i) => {
-    const key = String(i).padStart(2, '0');
-    return probabilities[key] || 0;
+
+  const values = basis.map((_, i) => {
+    // produce binary key: "00", "01", "10", "11"
+    let key = i.toString(2).padStart(2, '0');
+
+    // optionally reverse bit order if your backend uses little-endian ordering
+    if (reverseBitOrder) {
+      key = key.split('').reverse().join('');
+    }
+
+    // try to read value as either probabilities["10"] or probabilities[2] (some APIs use numeric keys)
+    let val = probabilities?.[key];
+    if (val === undefined) val = probabilities?.[parseInt(key, 2)];
+    if (val === undefined) val = 0;
+
+    // if the value looks like a fraction 0..1 convert to percent
+    if (typeof val === 'number' && val <= 1) val = val * 100;
+
+    return Number(val) || 0;
   });
 
   return (
