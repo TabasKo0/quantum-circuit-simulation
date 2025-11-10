@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
  */
 
 export async function POST(req) {
-  const backendUrl = process.env.SIMULATOR_URL || 'https://quantsimback.onrender.com/api/simulate';
+  const backendUrl = process.env.SIMULATOR_URL || 'https://localhost:5000/api/simulate';
 
   try {
     // Read the incoming JSON body
