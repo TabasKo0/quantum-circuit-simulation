@@ -392,7 +392,7 @@ export default function CircuitBoard({ onSimulate }) {
           <div className="flex flex-row">
             <div className='flex flex-col p-3 gap-4  '>
               <div className='p-4 bg-gray-900 rounded-[10px] whitespace-nowrap'>Q1: |00⟩</div>
-              <div className='p-4 bg-gray-900 rounded-[10px]'>Q2: |00⟩</div>
+              <div className='p-4 bg-gray-900 rounded-[10px]'>Q0: |00⟩</div>
             </div>
 
             <div

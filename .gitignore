@@ -1,3 +1,4 @@
 /backups
 /backend/venv
 /frontend-static
+.env

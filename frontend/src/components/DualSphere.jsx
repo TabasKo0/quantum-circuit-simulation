@@ -412,7 +412,7 @@ function SingleBlochSphere({ qubitIndex, fullState }) {
           <h3 className="text-base font-semibold text-gray-200">State & Parameters</h3>
           <button
             onClick={toggleCoordinateMode}
-            className="bg-blue-600 hover:bg-blue-700 rounded px-3 py-1 text-xs font-bold transition-colors text-white"
+            className="bg-blue-600 hover:bg-blue-700 rounded px-3 py-1 font-bold transition-colors text-white"
           >
             {coordinateMode === 'polar' ? 'Switch to Amplitudes (α,β)' : 'Switch to Polar (θ,φ)'}
           </button>
@@ -420,10 +420,10 @@ function SingleBlochSphere({ qubitIndex, fullState }) {
         
         {/* State display */}
         <div className="bg-gray-900 rounded-lg p-3">
-          <div className="text-xs font-mono mb-2">
+          <div className="text-m font-mono mb-2">
             |ψ⟩ = (<span className="text-green-400">{complex.format(state.alpha)}</span>)|0⟩ + (<span className="text-yellow-400">{complex.format(state.beta)}</span>)|1⟩
           </div>
-          <div className="text-xs font-mono">
+          <div className="text-m font-mono">
             {coordinateMode === 'polar' ? (
               <>
                 <span className="text-purple-400">θ: {(theta * 180 / Math.PI).toFixed(2)}°</span><br/>
@@ -441,14 +441,14 @@ function SingleBlochSphere({ qubitIndex, fullState }) {
         {/* Coordinate inputs (polar or amplitudes) */}
         <div className="space-y-2">
           {coordinateMode === 'polar' ? (
-            <div className="grid grid-cols-3 gap-2 items-center text-xs">
+            <div className="grid grid-cols-3 gap-2 items-center text-m">
               <label className="font-mono text-white font-semibold">θ (deg):</label>
               <input
                 type="number"
                 value={polarInputs.thetaDeg}
                 onChange={(e) => setPolarInputs(p => ({ ...p, thetaDeg: e.target.value }))}
                 step="0.1"
-                className="col-span-2 bg-gray-700 border border-gray-600 rounded p-1 text-white text-xs"
+                className="col-span-2 bg-gray-700 border border-gray-600 rounded p-1 text-white text-m"
               />
               <label className="font-mono text-white font-semibold">φ (deg):</label>
               <input
@@ -456,11 +456,11 @@ function SingleBlochSphere({ qubitIndex, fullState }) {
                 value={polarInputs.phiDeg}
                 onChange={(e) => setPolarInputs(p => ({ ...p, phiDeg: e.target.value }))}
                 step="0.1"
-                className="col-span-2 bg-gray-700 border border-gray-600 rounded p-1 text-white text-xs"
+                className="col-span-2 bg-gray-700 border border-gray-600 rounded p-1 text-white text-m"
               />
             </div>
           ) : (
-            <div className="space-y-2 text-xs">
+            <div className="space-y-2 text-m">
               <div className="grid grid-cols-4 gap-2 items-center">
                 <label className="font-mono text-white font-semibold">α real</label>
                 <input
@@ -468,7 +468,7 @@ function SingleBlochSphere({ qubitIndex, fullState }) {
                   value={amplitudeInputs.alphaReal}
                   onChange={(e) => setAmplitudeInputs(a => ({ ...a, alphaReal: e.target.value }))}
                   step="0.0001"
-                  className="bg-gray-700 border border-gray-600 rounded p-1 text-white text-xs col-span-3"
+                  className="bg-gray-700 border border-gray-600 rounded p-1 text-white text-m col-span-3"
                 />
                 <label className="font-mono text-white font-semibold">α imag</label>
                 <input
@@ -476,7 +476,7 @@ function SingleBlochSphere({ qubitIndex, fullState }) {
                   value={amplitudeInputs.alphaImag}
                   onChange={(e) => setAmplitudeInputs(a => ({ ...a, alphaImag: e.target.value }))}
                   step="0.0001"
-                  className="bg-gray-700 border border-gray-600 rounded p-1 text-white text-xs col-span-3"
+                  className="bg-gray-700 border border-gray-600 rounded p-1 text-white text-m col-span-3"
                 />
                 <label className="font-mono text-white font-semibold">β real</label>
                 <input
@@ -484,7 +484,7 @@ function SingleBlochSphere({ qubitIndex, fullState }) {
                   value={amplitudeInputs.betaReal}
                   onChange={(e) => setAmplitudeInputs(a => ({ ...a, betaReal: e.target.value }))}
                   step="0.0001"
-                  className="bg-gray-700 border border-gray-600 rounded p-1 text-white text-xs col-span-3"
+                  className="bg-gray-700 border border-gray-600 rounded p-1 text-white text-m col-span-3"
                 />
                 <label className="font-mono text-white font-semibold">β imag</label>
                 <input
@@ -492,10 +492,10 @@ function SingleBlochSphere({ qubitIndex, fullState }) {
                   value={amplitudeInputs.betaImag}
                   onChange={(e) => setAmplitudeInputs(a => ({ ...a, betaImag: e.target.value }))}
                   step="0.0001"
-                  className="bg-gray-700 border border-gray-600 rounded p-1 text-white text-xs col-span-3"
+                  className="bg-gray-700 border border-gray-600 rounded p-1 text-white text-m col-span-3"
                 />
               </div>
-              <div className="text-xs text-gray-400">Enter complex amplitudes for α and β (they will be normalized).</div>
+              <div className="text-m text-gray-400">Enter complex amplitudes for α and β (they will be normalized).</div>
             </div>
           )}
         </div>
@@ -504,22 +504,22 @@ function SingleBlochSphere({ qubitIndex, fullState }) {
         <div className="flex gap-2">
           <button
             onClick={handleSetState}
-            className="flex-1 bg-cyan-600 hover:bg-cyan-700 rounded py-1 text-xs font-bold transition-colors text-white"
+            className="flex-1 bg-cyan-600 hover:bg-cyan-700 rounded py-1 text-m font-bold transition-colors text-white"
           >
             Set State
           </button>
           <button
             onClick={resetState}
-            className="flex-1 bg-gray-600 hover:bg-gray-500 rounded py-1 text-xs font-bold transition-colors text-white"
+            className="flex-1 bg-gray-600 hover:bg-gray-500 rounded py-1 text-m font-bold transition-colors text-white"
           >
             Reset
           </button>
         </div>
-        {errorMsg && <p className="text-red-400 text-xs">{errorMsg}</p>}
+        {errorMsg && <p className="text-red-400 text-m">{errorMsg}</p>}
         
         {/* Gate buttons */}
         <div>
-          <h4 className="text-xs font-semibold mb-2 text-gray-200">Apply Gates</h4>
+          <h4 className="text-m font-semibold mb-2 text-gray-200">Apply Gates</h4>
           <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => applyGate('X')}
