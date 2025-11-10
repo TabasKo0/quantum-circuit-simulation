@@ -98,9 +98,12 @@ export default function CircuitBoard({ onSimulate }) {
   const [board, setBoard] = useState(emptyBoard());
   const [results, setResults] = useState({
     statevector_str: '(1.000)|00⟩',
-    probabilities: { '00': 100, '01': 0, '10': 0, '11': 0 }
+    probabilities: { '00': 100, '01': 0, '10': 0, '11': 0 },
+    human_steps: [],
+    visualizationHints: {}
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showRich, setShowRich] = useState(false);
   const draggedGate = useRef(null);
   const [tooltip, setTooltip] = useState({ show: false, gate: null, x: 0, y: 0 });
   const tooltipTimeoutRef = useRef(null);
@@ -184,7 +187,9 @@ export default function CircuitBoard({ onSimulate }) {
     setBoard(emptyBoard());
     setResults({
       statevector_str: '(1.000)|00⟩',
-      probabilities: { '00': 100, '01': 0, '10': 0, '11': 0 }
+      probabilities: { '00': 100, '01': 0, '10': 0, '11': 0 },
+      human_steps: [],
+      visualizationHints: {}
     });
     onSimulate({
       alpha: { real: 1, imag: 0 },
@@ -459,6 +464,13 @@ export default function CircuitBoard({ onSimulate }) {
       {/* Results */}
       <div id="results-container" className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Simulation Output</h3>
+        {/* Entanglement badge */}
+        {results?.visualizationHints?.entangled && (
+          <div className="mb-3 text-sm">
+            <span className="inline-block bg-pink-700 text-white px-3 py-1 rounded-full mr-2">Entangled</span>
+            <span className="text-gray-300">Qubits appear entangled — outcomes will be correlated.</span>
+          </div>
+        )}
         <div id="statevector-output" className="mb-4 bg-gray-900 p-4 rounded-lg">
           <p className="font-mono text-lg text-gray-100">
             Final State Vector:
@@ -466,7 +478,59 @@ export default function CircuitBoard({ onSimulate }) {
           </p>
         </div>
         <div id="probability-chart" className="bg-gray-900 p-4 rounded-lg">
-          <ProbabilityBarChart probabilities={results.probabilities} />
+          <ProbabilityBarChart 
+            probabilities={results.probabilities}
+            highlightKeys={results?.visualizationHints?.highlight || []}
+          />
+        </div>
+
+        {/* Human Steps */}
+        <div className="mt-6">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-lg font-semibold text-cyan-300">Step Log</h4>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-300">Show details</label>
+              <button
+                onClick={() => setShowRich(v => !v)}
+                className="bg-gray-700 hover:bg-gray-600 text-white text-sm px-3 py-1 rounded"
+              >
+                {showRich ? 'Rich' : 'Compact'}
+              </button>
+            </div>
+          </div>
+          <div id="human-steps-output" className="bg-gray-900 p-3 rounded max-h-48 overflow-auto border border-gray-700">
+            {(results.human_steps || []).length === 0 && (
+              <div className="text-gray-400 text-sm">No steps yet. Build a circuit and click Simulate.</div>
+            )}
+            {(results.human_steps || []).map((s) => (
+              <div key={s.step} className="text-gray-100 text-sm mb-2 border-b border-gray-800 pb-2 last:border-b-0">
+                <div className="font-mono">
+                  <span className="text-gray-400">Step {s.step}:</span> <span className="text-cyan-300">{s.text}</span>
+                </div>
+                {showRich && (
+                  <div className="mt-1 pl-4">
+                    {s.statevector_str && (
+                      <div className="text-gray-300"><span className="text-gray-400">State:</span> <span className="font-mono text-cyan-200">{s.statevector_str}</span></div>
+                    )}
+                    {s.probabilities && (
+                      <div className="text-gray-300">
+                        <span className="text-gray-400">Probabilities:</span>{' '}
+                        <span className="font-mono">
+                          00={s.probabilities['00']?.toFixed ? s.probabilities['00'].toFixed(3) : s.probabilities['00']}%,{' '}
+                          01={s.probabilities['01']?.toFixed ? s.probabilities['01'].toFixed(3) : s.probabilities['01']}%,{' '}
+                          10={s.probabilities['10']?.toFixed ? s.probabilities['10'].toFixed(3) : s.probabilities['10']}%,{' '}
+                          11={s.probabilities['11']?.toFixed ? s.probabilities['11'].toFixed(3) : s.probabilities['11']}%
+                        </span>
+                      </div>
+                    )}
+                    {s.explanation && (
+                      <div className="text-gray-400 italic">{s.explanation}</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
