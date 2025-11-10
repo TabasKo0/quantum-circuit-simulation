@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 // Use dynamic import to ensure Plotly is only loaded on the client (avoids "self is not defined" SSR error)
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
-export default function ProbabilityBarChart({ probabilities = {}, reverseBitOrder = false }) {
+export default function ProbabilityBarChart({ probabilities = {}, reverseBitOrder = false, highlightKeys = [] }) {
   const basis = ['|00⟩', '|01⟩', '|10⟩', '|11⟩'];
 
   const values = basis.map((_, i) => {
@@ -26,6 +26,12 @@ export default function ProbabilityBarChart({ probabilities = {}, reverseBitOrde
     return Number(val) || 0;
   });
 
+  const colors = basis.map((_, i) => {
+    let key = i.toString(2).padStart(2, '0');
+    if (reverseBitOrder) key = key.split('').reverse().join('');
+    return highlightKeys.includes(key) ? '#f472b6' : '#6366f1'; // highlight in pink
+  });
+
   return (
     <Plot
       data={[
@@ -35,7 +41,7 @@ export default function ProbabilityBarChart({ probabilities = {}, reverseBitOrde
           type: 'bar',
           text: values.map(v => v.toFixed(1) + '%'),
           textposition: 'auto',
-          marker: { color: '#6366f1' },
+          marker: { color: colors },
         },
       ]}
       layout={{
