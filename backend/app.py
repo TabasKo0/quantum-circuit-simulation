@@ -30,6 +30,7 @@ def format_statevector(statevector):
                 ket_string += f" + ({amp_str}){basis_state}"
             else:
                 ket_string += f"({amp_str}){basis_state}"
+    #print(ket_string)
     return ket_string
 
 @app.route('/simulate', methods=['POST'])
@@ -87,7 +88,7 @@ def simulate():
             '11': float(probabilities[3]),
         }
     }
-
+    print(response)
     return jsonify(response)
 
 if __name__ == '__main__':

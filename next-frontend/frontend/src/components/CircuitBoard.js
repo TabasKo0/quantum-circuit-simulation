@@ -300,9 +300,9 @@ export default function CircuitBoard({ onSimulate }) {
   // Render
   return (
     <div className="flex flex-col gap-6">
-      <div className='flex md:flex-row flex-col gap-4'>
+      <div className='flex  md:flex-row flex-col gap-4 flex-stretch'>
         {/* Palette */}
-        <div id="gate-palette" className="mb-2 relative bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div id="gate-palette" className="mb-2 relative bg-gray-800 p-6 rounded-lg shadow-lg md:w-[50vw] w-[93vw]">
           <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Gate Palette</h3>
           <div className="flex flex-wrap gap-3 justify-between">
             {GATES.map(g => {
@@ -384,50 +384,57 @@ export default function CircuitBoard({ onSimulate }) {
         {/* Board */}
         <div id="circuit-container" className="mb-2 bg-gray-800 p-6 rounded-lg shadow-lg">
           <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Quantum Circuit</h3>
-          <div
-            id="circuit-board"
-            className="grid mb-4"
-            style={{
-              gridTemplateColumns: `repeat(${NUM_COLS}, 50px)`,
-              gridTemplateRows: `repeat(${NUM_QUBITS}, 50px)`,
-              gap: '10px',
-              padding: '20px',
-              border: '2px dashed #374151',
-              backgroundColor: '#0f172a'
-            }}
-          >
-            {Array(NUM_QUBITS * NUM_COLS).fill(0).map((_, i) => {
-              const row = Math.floor(i / NUM_COLS);
-              const col = i % NUM_COLS;
-              const slot = board[row][col];
-              return (
-                <div
-                  key={i}
-                  className="circuit-slot flex items-center justify-center border border-gray-700 rounded relative bg-gray-900"
-                  style={{ width: 50, height: 50 }}
-                  data-row={row}
-                  data-col={col}
-                  onDragOver={handleDragOver}
-                  onDrop={() => handleDrop(row, col)}
-                >
-                  {slot.gate && (
-                    <div className={`gate font-bold text-sm ${slot.gate === 'CNOT' || slot.gate === 'CZ' ? 'text-white' : 'text-gray-100'}`}>
-                      {slot.gate}
-                    </div>
-                  )}
-                  {slot.symbol && <div className="gate text-pink-400 font-bold text-xl">{slot.symbol}</div>}
-                  {/* Control line for CNOT/CZ */}
-                  {slot.gate && (slot.gate === 'CNOT' || slot.gate === 'CZ') && (
-                    <div className="control-line absolute left-1/2" style={{
-                      width: '2px',
-                      height: '60px',
-                      backgroundColor: '#c76f8e',
-                      top: row === 0 ? '0' : '-60px',
-                    }}></div>
-                  )}
-                </div>
-              );
-            })}
+          <div className="flex flex-row">
+            <div className='flex flex-col p-3 gap-4  '>
+              <div className='p-4 bg-gray-900 rounded-[10px] whitespace-nowrap'>Q1: |00⟩</div>
+              <div className='p-4 bg-gray-900 rounded-[10px]'>Q2: |00⟩</div>
+            </div>
+
+            <div
+              id="circuit-board"
+              className="grid mb-4"
+              style={{
+                gridTemplateColumns: `repeat(${NUM_COLS}, 50px)`,
+                gridTemplateRows: `repeat(${NUM_QUBITS}, 50px)`,
+                gap: '10px',
+                padding: '20px',
+                border: '2px dashed #374151',
+                backgroundColor: '#0f172a'
+              }}
+            >
+              {Array(NUM_QUBITS * NUM_COLS).fill(0).map((_, i) => {
+                const row = Math.floor(i / NUM_COLS);
+                const col = i % NUM_COLS;
+                const slot = board[row][col];
+                return (
+                  <div
+                    key={i}
+                    className="circuit-slot flex items-center justify-center border border-gray-700 rounded relative bg-gray-900"
+                    style={{ width: 50, height: 50 }}
+                    data-row={row}
+                    data-col={col}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop(row, col)}
+                  >
+                    {slot.gate && (
+                      <div className={`gate font-bold text-sm ${slot.gate === 'CNOT' || slot.gate === 'CZ' ? 'text-white' : 'text-gray-100'}`}>
+                        {slot.gate}
+                      </div>
+                    )}
+                    {slot.symbol && <div className="gate text-pink-400 font-bold text-xl">{slot.symbol}</div>}
+                    {/* Control line for CNOT/CZ */}
+                    {slot.gate && (slot.gate === 'CNOT' || slot.gate === 'CZ') && (
+                      <div className="control-line absolute left-1/2" style={{
+                        width: '2px',
+                        height: '60px',
+                        backgroundColor: '#c76f8e',
+                        top: row === 0 ? '0' : '-60px',
+                      }}></div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
           {/* Controls */}
           <div className="controls mt-4 flex gap-4 justify-center">
