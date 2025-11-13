@@ -7,7 +7,6 @@ import { NextResponse } from 'next/server';
  */
 
 export async function POST(req) {
-  console.log(process.env.SIMULATOR_URL,"huihui");
   const backendUrl = process.env.SIMULATOR_URL || 'http://localhost:5000/api/simulate';
 
   try {
