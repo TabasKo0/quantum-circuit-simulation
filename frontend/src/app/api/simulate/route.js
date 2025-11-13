@@ -7,7 +7,8 @@ import { NextResponse } from 'next/server';
  */
 
 export async function POST(req) {
-  const backendUrl = process.env.SIMULATOR_URL || 'https://localhost:5000/api/simulate';
+  console.log(process.env.SIMULATOR_URL,"huihui");
+  const backendUrl = process.env.SIMULATOR_URL || 'http://localhost:5000/api/simulate';
 
   try {
     // Read the incoming JSON body

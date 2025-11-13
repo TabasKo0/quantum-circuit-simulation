@@ -395,8 +395,8 @@ export default function CircuitBoard({ onSimulate }) {
           <h3 className="text-xl font-bold mb-4 text-center text-cyan-400 bg-[#0a2540] border border-cyan-500 py-2 px-6 rounded-full inline-block w-auto mx-auto block">Quantum Circuit</h3>
           <div className="flex flex-row">
             <div className='flex flex-col p-3 gap-4  '>
-              <div className='p-4 bg-gray-900 rounded-[10px] whitespace-nowrap'>Q1: |00⟩</div>
-              <div className='p-4 bg-gray-900 rounded-[10px]'>Q0: |00⟩</div>
+              <div className='p-4 bg-gray-900 rounded-[10px] whitespace-nowrap'>Q1: |0⟩</div>
+              <div className='p-4 bg-gray-900 rounded-[10px]'>Q0: |0⟩</div>
             </div>
 
             {/* Wrapper that enables horizontal scrolling on small screens while keeping layout intact */}
